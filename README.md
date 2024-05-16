@@ -90,10 +90,16 @@ Http Status: 200
 }
 ```
 Response on error:
+If the version of the client and the orchestrator do not match the orchestrator will respond with a HTTP code 426. The required version will be 
 
 | Value name               | Value description         |
 |:-------------------------|:--------------------------|
 | Http Status              | 426 - Upgrade required    |
+| `Upgrade` Header content | required software version |
+
+| Value name               | Value description         |
+|:-------------------------|:--------------------------|
+| Http Status              | 409 - Conflict            |
 | `Upgrade` Header content | required software version |
 #### Worker heartbeat (internal)
 ```http request

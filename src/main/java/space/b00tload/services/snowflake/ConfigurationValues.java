@@ -7,7 +7,7 @@ public enum ConfigurationValues implements ConfigValues {
     SEQUENCE_BITS("sequencebits", "S", "SEQUENCE_BITS", "bitcount.sequence", "12"),
     EPOCH("epoch", "E", "EPOCH", "epoch", "1704067200000"),
     MACHINE_ID("machineid", "I", "MACHINE_ID", "machineid", "-1"),
-    ORCHESTRATOR_IP("orchestrator", "O", "ORCHESTRATOR_IP", "orchestrator.ip", "localhost"),
+    ORCHESTRATOR_IP("orchestrator", "O", "ORCHESTRATOR_IP", "orchestrator.ip", "http://disabled"),
     ;
 
     private final String cliFlag;
