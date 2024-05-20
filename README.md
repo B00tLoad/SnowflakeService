@@ -22,10 +22,10 @@ This utility uses:
 
 ```bash
   docker pull bootmediaalix/snowflakeservice
-  docker run -e %{set required .env, see below} -p 9567:9567 -v /data/b00tload-services/snowflake:%{desired path on host} bootmediaalix/snowflakeservice
+  docker run -e %{set required .env, see below} -p 9567:9567 -v %{desired path on host}:/data/b00tload-tools/snowflake bootmediaalix/snowflakeservice
 ```
 ### Containerless
-A containerless installation is possible, although not supported. For development convenience the application base directory is located in `~/.b00tload-services/snowflake` instead of `/data/b00tload-services/snowflake`.
+A containerless installation is possible, although not supported. For development convenience the application base directory is located in `~/.b00tload-tools/snowflake` instead of `/data/b00tload-tools/snowflake`.
 If you want to work containerless you are on your own.
 ## Environment Variables
 
@@ -52,7 +52,7 @@ To run this project, you may add the following environment variables to your .en
 Response example:
 ```json
 {
-    "id": "50990430426234880"
+  "id": "50990430426234880"
 }
 ```
 
