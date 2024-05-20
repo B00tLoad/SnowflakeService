@@ -22,7 +22,7 @@ This utility uses:
 
 ```bash
   docker pull bootmediaalix/snowflakeservice
-  docker run bootmediaalix/snowflakeservice -e %{set required .env, see below} -p 95674:95674 -v /data/b00tload-services/snowflake:%desired path on host%
+  docker run bootmediaalix/snowflakeservice -e %{set required .env, see below} -p 9567:9567 -v /data/b00tload-services/snowflake:%desired path on host%
 ```
 ### Containerless
 A containerless installation is possible, although not supported. For development convenience the application base directory is located in `~/.b00tload-services/snowflake` instead of `/data/b00tload-services/snowflake`.

@@ -77,7 +77,7 @@ public class SnowflakeService {
             ret.addProperty("id", SnowflakeIDGenerator.getInstance().generateID());
             ctx.status(200).result(ret.toString()).contentType(ContentType.APPLICATION_JSON);
         }));
-        endpointServer.start(95674);
+        endpointServer.start(9567);
 
     }
 }
