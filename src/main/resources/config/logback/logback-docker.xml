@@ -14,6 +14,9 @@
             <level>ERROR</level>
             <onMatch>DENY</onMatch>
         </filter>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
     </appender>
     <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -26,16 +29,45 @@
     <appender name="RFAOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/snowflake.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_ARCHIVE}/rollingfile.log%d{yyy-MM-dd}.lol.gz</fileNamePattern>
+            <fileNamePattern>${LOG_ARCHIVE}/snowflake.rolling.%d{yyy-MM-dd}.log.gz</fileNamePattern>
         </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="debugOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/snowflake.debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_ARCHIVE}/snowflake.debug.rolling.%d{yyy-MM-dd}.log.gz</fileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="traceOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/snowflake.trace.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_ARCHIVE}/snowflake.trace.rolling.%d{yyy-MM-dd}.log.gz</fileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>
         </encoder>
     </appender>
 
-    <root level="debug">
+    <root level="trace">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="STDERR" />
         <appender-ref ref="RFAOUT" />
+        <appender-ref ref="debugOUT" />
+        <appender-ref ref="traceOUT" />
     </root>
 </configuration>

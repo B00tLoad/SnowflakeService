@@ -2,12 +2,29 @@ package space.b00tload.services.snowflake;
 
 import space.b00tload.utils.configuration.ConfigValues;
 
+/**
+ * All values to be configures
+ * @author Alix von Schirp
+ * @since 1.0.0
+ * @version 1.0.0
+ */
 public enum ConfigurationValues implements ConfigValues {
+    /**
+     * Bits reserved for machine id
+     */
     MACHINE_ID_BITS("machinebits", "M", "MACHINE_ID_BITS", "bitcount.machine", "10"),
+    /**
+     * Bits reserved for sequence
+     */
     SEQUENCE_BITS("sequencebits", "S", "SEQUENCE_BITS", "bitcount.sequence", "12"),
+    /**
+     * Selected epoch
+     */
     EPOCH("epoch", "E", "EPOCH", "epoch", "1704067200000"),
-    MACHINE_ID("machineid", "I", "MACHINE_ID", "machineid", "-1"),
-    ORCHESTRATOR_IP("orchestrator", "O", "ORCHESTRATOR_IP", "orchestrator.ip", "http://disabled"),
+    /**
+     * this machines id
+     */
+    MACHINE_ID("machineid", "I", "MACHINE_ID", "machineid", "0"),
     ;
 
     private final String cliFlag;

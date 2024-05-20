@@ -20,6 +20,9 @@ import static java.lang.System.currentTimeMillis;
 public class SnowflakeIDGenerator {
 
     //Singleton instance
+    /**
+     * Singleton instance
+     */
     private static SnowflakeIDGenerator INSTANCE;
 
     // Constants
@@ -84,10 +87,10 @@ public class SnowflakeIDGenerator {
     /**
      * Used for initiating constants and state and performing bound checks on {@code EPOCH}, {@code MAX_TIMESTAMP} and {@code machineId}.
      *
-     * @param machineId The machineID used for generation // expected to be null if not initialized by orchestrator, loaded from config
-     * @param epoch The snowflake epoch used for generation // expected to be null if not initialized by orchestrator, loaded from config
-     * @param machineIdBits The amount of bits used for the machineID // expected to be null if not initialized by orchestrator, loaded from config
-     * @param sequenceBits The amount of bits used for sequence counter // expected to be null if not initialized by orchestrator, loaded from config
+     * @param machineId The machineID used for generation // expected to be null, loaded from config
+     * @param epoch The snowflake epoch used for generation // expected to be null, loaded from config
+     * @param machineIdBits The amount of bits used for the machineID // expected to be null, loaded from config
+     * @param sequenceBits The amount of bits used for sequence counter // expected to be null, loaded from config
      * @throws IllegalArgumentException if any bound checks fail.
      */
     private SnowflakeIDGenerator(@Nullable Long machineId, @Nullable Long epoch, @Nullable Long machineIdBits, @Nullable Long sequenceBits) throws IllegalArgumentException{
@@ -129,6 +132,7 @@ public class SnowflakeIDGenerator {
      * Generates a new snowflake ID.<br>
      * It uses a long (64-bit signed int) made up of (in default configuration):
      * <table>
+     *     <caption>Bit layout</caption>
      *     <tr>
      *         <th>bit(s)</th>
      *         <th>content</th>
@@ -152,7 +156,7 @@ public class SnowflakeIDGenerator {
      * </table>
      * Generation will be halted
      * <ul>
-     *     <li>if the clock moves backwards (e.g. fast clock after ntp synchronization) until {@code last generated milli}<{@code current milli}</li>
+     *     <li>if the clock moves backwards (e.g. fast clock after ntp synchronization) until {@code last generated milli}{@literal <}{@code current milli}</li>
      *     <li>if {@code count(generated IDs this millisecond)} is greater than {@code MAX_SEQUENCE} until next millisecond</li>
      * </ul>
      * @return the generated ID
@@ -186,6 +190,13 @@ public class SnowflakeIDGenerator {
 
 
     // Wait for the next timestamp
+
+    /**
+     * Blocks thread until next timestemp (=next milli)
+     *
+     * @param currentTimestamp the current milli
+     * @return the awaited milli
+     */
     private long waitForNextTimestamp(long currentTimestamp) {
         long nextTimestamp = currentTimeMillis();
         while (nextTimestamp <= currentTimestamp) {
@@ -194,57 +205,18 @@ public class SnowflakeIDGenerator {
         return nextTimestamp;
     }
 
-    public static void init(long machineId, long epoch, long machineIdBits, long sequenceBits){
-        INSTANCE = new SnowflakeIDGenerator(machineId, epoch, machineIdBits, sequenceBits);
-    }
-
     public static void init(){
         INSTANCE = new SnowflakeIDGenerator(null, null, null, null);
     }
 
+    /**
+     * Getter for the singleton instance. Inits singleton if needed.
+     * @return the singleton instance.
+     */
     public static SnowflakeIDGenerator getInstance() {
-        if(Objects.isNull(INSTANCE)) throw new UnsupportedOperationException("SnowflakeIDGenerator is not initialized.");
+//        if(Objects.isNull(INSTANCE)) throw new UnsupportedOperationException("SnowflakeIDGenerator is not initialized.");
+        if(Objects.isNull(INSTANCE)) init();
         return INSTANCE;
-    }
-
-    public long getEPOCH() {
-        return EPOCH;
-    }
-
-    public long getMACHINE_ID_BITS() {
-        return MACHINE_ID_BITS;
-    }
-
-    public long getSEQUENCE_BITS() {
-        return SEQUENCE_BITS;
-    }
-
-    public long getMAX_MACHINE_ID() {
-        return MAX_MACHINE_ID;
-    }
-
-    public long getMAX_SEQUENCE() {
-        return MAX_SEQUENCE;
-    }
-
-    public long getMACHINE_ID_SHIFT() {
-        return MACHINE_ID_SHIFT;
-    }
-
-    public long getTIMESTAMP_SHIFT() {
-        return TIMESTAMP_SHIFT;
-    }
-
-    public long getMachineId() {
-        return machineId;
-    }
-
-    public long getTIMESTAMP_BITS() {
-        return TIMESTAMP_BITS;
-    }
-
-    public long getMAX_TIMESTAMP() {
-        return MAX_TIMESTAMP;
     }
 }
 

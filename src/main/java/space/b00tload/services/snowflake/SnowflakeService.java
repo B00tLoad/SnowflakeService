@@ -4,31 +4,45 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter2;
-import okhttp3.*;
+import com.google.gson.JsonObject;
+import io.javalin.Javalin;
+import io.javalin.http.ContentType;
+import io.javalin.http.HandlerType;
+import io.javalin.router.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.b00tload.utils.configuration.Configuration;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
+/**
+ * Main class orchestrating between generator, webserver and config
+ *
+ * @author Alix von Schirp
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 public class SnowflakeService {
 
+    /**
+     * This software's version
+     */
     private static String SOFTWARE_VERSION;
+    /**
+     * Base dir for config and tmp data
+     */
     private static String APPLICATION_BASE;
-    private static String USER_AGENT;
-    private static Logger LOGGER;
-    private static String INSTANCE_NAME;
 
+    /**
+     * Initializes tool, generator and webserver.
+     * @param args cli args
+     */
     public static void main(String[] args) {
         //Set up constants
         SOFTWARE_VERSION = Objects.requireNonNullElse(SnowflakeService.class.getPackage().getImplementationVersion(), "0.0.1-indev");
-        USER_AGENT = "SnowflakeService " + SOFTWARE_VERSION + "(" + System.getProperty("os.name") + "; " + System.getProperty("os.arch") + ") Java/" + System.getProperty("java.version");
         APPLICATION_BASE = List.of(args).contains("--docker") ? Paths.get("data", "b00tload-tools", "snowflake").toString() : Paths.get(System.getProperty("user.home"), ".b00tload-tools", "snowflake").toString();
-        INSTANCE_NAME = getHostname() + "_" + getPid() + "_" + new Random().nextInt(9999);
 
         //Set up logger
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -45,52 +59,25 @@ public class SnowflakeService {
         (new StatusPrinter2()).printInCaseOfErrorsOrWarnings(loggerContext);
 
         //Set up logger
-        LOGGER = LoggerFactory.getLogger(SnowflakeService.class);
+        Logger LOGGER = LoggerFactory.getLogger(SnowflakeService.class);
 
         //Init config
         Configuration.init(args, SOFTWARE_VERSION, APPLICATION_BASE, ConfigurationValues.values());
 
-        long machineID;
-        long sequenceBits;
-        long machineBits;
-        long epoch;
-
-        if(!Configuration.getInstance().get(ConfigurationValues.ORCHESTRATOR_IP).equals(ConfigurationValues.ORCHESTRATOR_IP.getDefaultValue())){
-            OkHttpClient httpClient = new OkHttpClient();
-            try {
-                try (Response r = httpClient.newCall(
-                        new Request.Builder()
-                                .url(Configuration.getInstance().get(ConfigurationValues.ORCHESTRATOR_IP))
-                                .post(
-                                    new FormBody.Builder().addEncoded("name", INSTANCE_NAME).build()
-                                )
-                                .build()
-                ).execute()){
-                    if(r.code() == 200){
-
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else if((Long.parseLong(Configuration.getInstance().get(ConfigurationValues.MACHINE_ID))) != -1L) {
-
-        } else {
-
-        }
+        //Init webserver
+        Javalin endpointServer = Javalin.create(config -> {
+            config.http.brotliAndGzipCompression();
+            config.http.prefer405over404 = true;
+            config.requestLogger.http((ctx, executionTimeMs) -> {
+                LoggerFactory.getLogger(config.getClass()).info("{} served in {}ms to {}(UA: \"{}\")", ctx.fullUrl(), executionTimeMs, ctx.req().getRemoteAddr(), ctx.userAgent());
+            });
+        });
+        endpointServer.addEndpoint(new Endpoint(HandlerType.GET, "generate", ctx -> {
+            JsonObject ret = new JsonObject();
+            ret.addProperty("id", SnowflakeIDGenerator.getInstance().generateID());
+            ctx.status(200).result(ret.toString()).contentType(ContentType.APPLICATION_JSON);
+        }));
+        endpointServer.start(95674);
 
     }
-
-    private static String getHostname(){
-        String hostname = System.getenv("COMPUTERNAME"); // On Windows
-        if (hostname == null || hostname.isEmpty()) {
-            hostname = System.getenv("HOSTNAME"); // On Unix/Linux
-        }
-        return hostname;
-    }
-
-    private static long getPid(){
-        return ProcessHandle.current().pid();
-    }
-
 }
