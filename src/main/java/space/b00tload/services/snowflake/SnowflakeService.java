@@ -72,6 +72,11 @@ public class SnowflakeService {
                 LoggerFactory.getLogger(config.getClass()).info("{} served in {}ms to {}(UA: \"{}\")", ctx.fullUrl(), executionTimeMs, ctx.req().getRemoteAddr(), ctx.userAgent());
             });
         });
+        endpointServer.addEndpoint(new Endpoint(HandlerType.GET, "health", ctx -> {
+            JsonObject ret = new JsonObject();
+            ret.addProperty("status", "UP");
+            ctx.status(200).result(ret.toString()).contentType(ContentType.APPLICATION_JSON);
+        }));
         endpointServer.addEndpoint(new Endpoint(HandlerType.GET, "generate", ctx -> {
             JsonObject ret = new JsonObject();
             ret.addProperty("id", SnowflakeIDGenerator.getInstance().generateID());
